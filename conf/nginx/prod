@@ -1,0 +1,97 @@
+upstream balance {
+    least_conn;
+#   server localhost:8080;
+#   server 10.129.32.191:8080;
+#	server unix:/var/tmp/socket.pool;
+    server unix:/var/run/php/php.sock;
+}
+
+server {
+        listen   80;
+        root /server/sites/prod/public/;
+        server_name localhost;
+	index index.php;
+	
+	charset utf-8;
+	client_max_body_size 100M;
+	fastcgi_read_timeout 1800;		
+	
+	location / {
+	    try_files $uri $uri/ /index.php?_url=$uri&$args;
+	}		
+	
+	
+	# Закрываем доступ к файлами .htaccess и .htpassword
+	location ~ /\. {
+	    deny all;
+	}
+	
+	location = /favicon.ico {
+	    log_not_found off;
+	    access_log off;
+	}
+	
+	location = /robots.txt {
+	    allow all;
+	    log_not_found off;
+	    access_log off;
+	}
+
+	location ~* \.(js|css|png|jpg|jpeg|gif|ico)$ {
+	    expires       max;
+	    log_not_found off;
+	    access_log    off;
+	}        
+	
+	location ~ \.php$  {
+	    try_files $uri =404;
+	
+	
+	#   fastcgi_pass   localhost:8080;
+	#   fastcgi_pass   unix:/var/tmp/socket.pool;
+	    fastcgi_pass   balance;
+	
+	    fastcgi_hide_header "Set-Cookie";
+
+	    fastcgi_index  /index.php;
+	
+	    
+	    
+	    include fastcgi_params;
+	    fastcgi_split_path_info       ^(.+\.php)(/.+)$;
+	    fastcgi_param PATH_INFO       $fastcgi_path_info;
+	    fastcgi_param PATH_TRANSLATED $document_root$fastcgi_path_info;
+	    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+	
+	
+	
+	}
+	
+	
+
+}
+
+
+server {
+
+        listen   443; 
+
+#        root /var/www/public;
+#        server_name localhost;
+
+#        try_files $uri $uri/ /index.php?_url=$uri&$args;
+
+
+#        include /etc/nginx/templates/default;
+#        include /etc/nginx/templates/php;
+
+#        ssl on;
+#        ssl_certificate /root/ssl/domain.ca.crt;
+#        ssl_certificate_key /root/ssl/domain.key;
+
+#        ssl_session_timeout 1m;
+
+#        ssl_protocols TLSv1;
+#        ssl_ciphers ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv3:+EXP;
+#        ssl_prefer_server_ciphers on;
+}

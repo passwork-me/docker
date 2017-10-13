@@ -1,0 +1,12 @@
+#!/bin/bash
+
+docker run -d --name=nginx \
+-p 80:80 -p 433:433 \
+-v /server/conf/nginx:/server/conf/nginx \
+-v /server/conf/php:/server/conf/php \
+-v /server/conf/ssl:/server/conf/ssl \
+-v /server/log/nginx:/server/log/nginx \
+-v /server/log/php:/server/log/php \
+-v /server/sites/:/server/sites/ \
+passwork/nginx \
+/server/run
