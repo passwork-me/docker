@@ -1,6 +1,7 @@
 #!/bin/bash
 
 docker run -d --name=nginx \
+--restart unless-stopped \
 -p 80:80 -p 433:433 \
 -v /server/conf/nginx:/server/conf/nginx \
 -v /server/conf/php:/server/conf/php \

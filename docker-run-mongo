@@ -1,6 +1,7 @@
 #!/bin/bash
 
 docker run -d --name=db \
+--restart unless-stopped \
 -p 127.0.0.1:27017:27017 \
 -v /server/conf/mongo:/server/conf/ \
 -v /server/log/mongo:/server/log/ \
