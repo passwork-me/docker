@@ -6,6 +6,7 @@ docker run -d --name=nginx \
 -v /server/conf/nginx:/server/conf/nginx \
 -v /server/conf/php:/server/conf/php \
 -v /server/conf/ssl:/server/conf/ssl \
+-v /server/conf/postfix:/server/conf/postfix \
 -v /server/log/nginx:/server/log/nginx \
 -v /server/log/php:/server/log/php \
 -v /server/sites/:/server/sites/ \
