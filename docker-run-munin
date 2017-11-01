@@ -1,0 +1,8 @@
+#!/bin/bash
+
+docker run -d --name=munin \
+-v /server/conf/munin:/server/conf/munin \
+-v /server/log/munin:/server/log/munin \
+-v /server/sites/munin:/server/sites/munin \
+passwork/munin \
+/server/run

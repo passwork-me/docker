@@ -7,9 +7,9 @@ upstream balance {
 }
 
 server {
-        listen   80;
-        root /server/sites/prod/public/;
-        server_name localhost;
+    listen   80;
+    root /server/sites/prod/public/;
+    server_name localhost;
 	index index.php;
 	
 	charset utf-8;
@@ -37,7 +37,7 @@ server {
 	    access_log off;
 	}
 
-	location ~* \.(js|css|png|jpg|jpeg|gif|ico)$ {
+	location ~* \.(js|css|png|jpg|jpeg|gif|ico|html)$ {
 	    expires       max;
 	    log_not_found off;
 	    access_log    off;
