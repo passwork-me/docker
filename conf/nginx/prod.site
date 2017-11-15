@@ -46,12 +46,7 @@ server {
 	location ~ \.php$  {
 	    try_files $uri =404;
 	
-	
-	#   fastcgi_pass   localhost:8080;
-	#   fastcgi_pass   unix:/var/tmp/socket.pool;
 	    fastcgi_pass   balance;
-	
-	    fastcgi_hide_header "Set-Cookie";
 
 	    fastcgi_index  /index.php;
 	
