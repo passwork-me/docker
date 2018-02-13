@@ -37,6 +37,15 @@ server {
 	    access_log off;
 	}
 
+    location ~* /app/([^/]+)/([^/]+)/template\.([a-zA-Z0-9-]+)\.html{
+         try_files /app/$1/$2/template.html $uri;
+    }
+
+
+    location ~* /extension/js/([^/]+)/([^/]+)/template\.([a-zA-Z0-9-]+)\.html{
+         try_files /extension/js/$1/$2/template.html $uri;
+    }
+
 	location ~* \.(js|css|png|jpg|jpeg|gif|ico|html)$ {
 	    expires       max;
 	    log_not_found off;
