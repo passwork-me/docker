@@ -1,8 +1,6 @@
 upstream balance {
     least_conn;
 #   server localhost:8080;
-#   server 10.129.32.191:8080;
-#	server unix:/var/tmp/socket.pool;
     server unix:/var/run/php/php.sock;
 }
 
