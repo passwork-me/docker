@@ -2,7 +2,7 @@
 
 docker run -d --name=nginx \
 --restart unless-stopped \
--p 80:80 -p 443:443 -p 8080:8080 \
+-p 80:80 -p 443:443  \
 -v /server/conf/nginx:/server/conf/nginx \
 -v /server/conf/php:/server/conf/php \
 -v /server/conf/ssl:/server/conf/ssl \
@@ -11,5 +11,5 @@ docker run -d --name=nginx \
 -v /server/log/php:/server/log/php \
 -v /server/log/syslog:/server/log/syslog \
 -v /server/sites/:/server/sites/ \
-passwork/nginx \
-/bin/bash -c "/server/phalcon-enable-v1; /server/run"
+passwork/nginx-php7 \
+/bin/bash -c "/server/run"
