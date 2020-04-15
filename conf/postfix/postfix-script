@@ -23,6 +23,11 @@
 #	IBM T.J. Watson Research
 #	P.O. Box 704
 #	Yorktown Heights, NY 10598, USA
+#
+#	Wietse Venema
+#	Google, Inc.
+#	111 8th Avenue
+#	New York, NY 10011, USA
 #--
 
 # Avoid POSIX death due to SIGHUP when some parent process exits.
@@ -71,6 +76,17 @@ cd $config_directory || {
 	$FATAL no Postfix configuration directory $config_directory!
 	exit 1
 }
+case $shlib_directory in
+no) ;;
+ *) cd $shlib_directory || {
+	$FATAL no Postfix shared-library directory $shlib_directory!
+        exit 1
+    }
+esac
+cd $meta_directory || {
+	$FATAL no Postfix meta directory $meta_directory!
+	exit 1
+}
 cd $queue_directory || {
 	$FATAL no Postfix queue directory $queue_directory!
 	exit 1
@@ -115,19 +131,19 @@ stop_msg)
 
 quick-start)
 
-	$daemon_directory/master -t 2>/dev/null || {
-		$FATAL the Postfix mail system is already running
-		exit 1
-	}
-	$daemon_directory/postfix-script quick-check || {
-		$FATAL Postfix integrity check failed!
-		exit 1
-	}
-	$INFO starting the Postfix mail system
-	$daemon_directory/master &
-	;;
+       $daemon_directory/master -t 2>/dev/null || {
+               $FATAL the Postfix mail system is already running
+               exit 1
+       }
+       $daemon_directory/postfix-script quick-check || {
+               $FATAL Postfix integrity check failed!
+               exit 1
+       }
+       $INFO starting the Postfix mail system
+       $daemon_directory/master &
+       ;;
 
-start)
+start|start-fg)
 
 	$daemon_directory/master -t 2>/dev/null || {
 		$FATAL the Postfix mail system is already running
@@ -145,11 +161,28 @@ start)
 		$daemon_directory/postfix-script check-warn
 	fi
 	$INFO starting the Postfix mail system
-	# NOTE: wait in foreground process to get the initialization status.
-	$daemon_directory/master -w || {
-	    $FATAL "mail system startup failed"
-	    exit 1
-	}
+	case $1 in
+	start)
+	    # NOTE: wait in foreground process to get the initialization status.
+	    $daemon_directory/master -w || {
+		$FATAL "mail system startup failed"
+		exit 1
+	    }
+	    ;;
+	start-fg)
+	    # Foreground start-up is incompatible with multi-instance mode.
+	    # We can't use "exec $daemon_directory/master" here: that would
+	    # break process group management, and "postfix stop" would kill
+	    # too many processes.
+	    case $instances in
+	    "") $daemon_directory/master
+		;;
+	     *) $FATAL "start-fg does not support multi_instance_directories"
+		exit 1
+		;;
+	    esac
+	    ;;
+	esac
 	;;
 
 drain)
@@ -268,42 +301,59 @@ check-fatal)
 check-warn)
 	# This command is NOT part of the public interface.
 
-	todo="$config_directory $queue_directory $queue_directory/pid"
-	test -n "$check_shared_files" && todo="$daemon_directory $todo"
+	# Check Postfix root-owned directory owner/permissions.
 
-	for dir in $todo
-	do
-		ls -lLd $dir | (grep " root " >/dev/null ||
-		    $WARN not owned by root: $dir)
-	done
+	find $queue_directory/. $queue_directory/pid \
+	    -prune ! -user root \
+	    -exec $WARN not owned by root: {} \;
 
-	# Some people break Postfix's security model.
-	ls -lLd $queue_directory | egrep '^.....(w|...w)' >/dev/null && \
-		$WARN group or other writable: $queue_directory
+	find $queue_directory/. $queue_directory/pid \
+	    -prune \( -perm -020 -o -perm -002 \) \
+	    -exec $WARN group or other writable: {} \;
 
-	todo="$config_directory/*"
-	test -n "$check_shared_files" && todo="$daemon_directory/* $todo"
-
-	find $todo ! -user root \
-		-exec $WARN not owned by root: {} \;
+	# Check Postfix root-owned directory tree owner/permissions.
 
 	todo="$config_directory/."
-	test -n "$check_shared_files" && todo="$daemon_directory/. $todo"
+	test -n "$check_shared_files" && {
+		todo="$daemon_directory/. $meta_directory/. $todo"
+		test "$shlib_directory" = "no" || 
+		    todo="$shlib_directory/. $todo"
+	}
+	todo=`echo "$todo" | tr ' ' '\12' | sort -u`
 
-	find $todo \
-		\( -perm -020 -o -perm -002 \) -type f \
-		-exec $WARN group or other writable: {} \;
+	find $todo ! -user root \
+	    -exec $WARN not owned by root: {} \;
+
+	# Handle symlinks separately
+	find -L $todo \( -perm -020 -o -perm -002 \) \
+	    -exec $WARN group or other writable: {} \;
+
+	find $todo -type l | while read f; do \
+	    readlink "$f" | grep -q / && $WARN symlink leaves directory: "$f"; \
+	done; \
+
+	# Check Postfix mail_owner-owned directory tree owner/permissions.
 
 	find $data_directory/. ! -user $mail_owner \
 	    -exec $WARN not owned by $mail_owner: {} \;
 
-	ls -lLd $data_directory | egrep '^.....(w|...w)' >/dev/null && \
-		$WARN group or other writable: $data_directory
+	find $data_directory/. \( -perm -020 -o -perm -002 \) \
+	    -exec $WARN group or other writable: {} \;
+
+	# Check Postfix mail_owner-owned directory tree owner.
 
 	find `ls -d $queue_directory/* | \
 	    egrep '/(saved|incoming|active|defer|deferred|bounce|hold|trace|corrupt|public|private|flush)$'` \
 	    ! \( -type p -o -type s \) ! -user $mail_owner \
 		-exec $WARN not owned by $mail_owner: {} \;
+
+	# WARNING: this should not descend into the maildrop directory.
+	# maildrop is the least trusted Postfix directory.
+
+	find $queue_directory/maildrop -prune ! -user $mail_owner \
+	    -exec $WARN not owned by $mail_owner: $queue_directory/maildrop \;
+
+	# Check Postfix setgid_group-owned directory and file group/permissions.
 
 	todo="$queue_directory/public $queue_directory/maildrop"
 	test -n "$check_shared_files" && 
@@ -318,33 +368,27 @@ check-warn)
 	    -prune ! -perm -02111 \
 	    -exec $WARN not set-gid or not owner+group+world executable: {} \;
 
-	for name in `ls -d $queue_directory/* | \
-	    egrep '/(bin|etc|lib|usr)$'` ; \
-	do \
-	    find $name ! -user root \
-		-exec $WARN not owned by root: {} \; ; \
-	done
-
-	# WARNING: this should not descend into the maildrop directory.
-	# maildrop is the least trusted Postfix directory.
-
-	find $queue_directory/maildrop/. -prune ! -user $mail_owner \
-	    -exec $WARN not owned by $mail_owner: $queue_directory/maildrop \;
+	# Check non-Postfix root-owned directory tree owner/content.
 
 	for dir in bin etc lib sbin usr
 	do
-		test -d $dir && find $dir -type f -print | while read path
+	    test -d $dir && {
+		find $dir ! -user root \
+		    -exec $WARN not owned by root: $queue_directory/{} \;
+
+		find $dir -type f -print | while read path
 		do
-			test -f /$path && {
-			    cmp -s $path /$path || 
-				$WARN $queue_directory/$path and /$path differ
-			}
+		    test -f /$path && {
+			cmp -s $path /$path || 
+			    $WARN $queue_directory/$path and /$path differ
+		    }
 		done
+	    }
 	done
 
 	find corrupt -type f -exec $WARN damaged message: {} \;
 
-	# XXX also: look for weird stuff, weird permissions, etc.
+	# Check for non-Postfix MTA remnants.
 
 	test -n "$check_shared_files" -a -f /usr/sbin/sendmail -a \
 		-f /usr/lib/sendmail && {
@@ -366,14 +410,18 @@ post-install)
 	$daemon_directory/post-install "$@"
 	;;
 
+tls)
+	shift
+	$daemon_directory/postfix-tls-script "$@"
+	;;
+
 /*)
 	# Currently not part of the public interface.
 	"$@"
 	;;
 
 *)
-	$ERROR "unknown command: '$1'"
-	$FATAL "usage: postfix start (or stop, reload, abort, flush, check, status, set-permissions, upgrade-configuration)"
+	$FATAL "unknown command: '$1'. Usage: postfix start (or stop, reload, abort, flush, check, status, set-permissions, upgrade-configuration)"
 	exit 1
 	;;
 
