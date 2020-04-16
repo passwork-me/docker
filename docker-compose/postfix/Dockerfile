@@ -2,7 +2,7 @@ FROM ubuntu:18.04
 MAINTAINER fackyhigh@gmail.com
 
 RUN apt-get update \
-    && apt-get install -y postfix syslog-ng syslog-ng-core ca-certificates \
+    && apt-get install -y postfix rsyslog ca-certificates \
     && apt-get clean
 
 RUN rm -rf /etc/postfix \

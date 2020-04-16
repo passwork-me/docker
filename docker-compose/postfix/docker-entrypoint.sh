@@ -1,6 +1,7 @@
 #!/bin/bash
 
-chown -R root:syslog /server/log/syslog/
-service syslog-ng start
+chown -Rv syslog:adm /server/log/syslog
+chmod -Rv 775 /server/log/syslog
+rsyslogd
 
 exec "$@"
