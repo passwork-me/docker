@@ -34,6 +34,9 @@ RUN apt-get install -y ssmtp \
 RUN sed -i 's/mailhub=mail/mailhub=postfix/g' '/etc/ssmtp/ssmtp.conf' \
     && sed -i 's/#FromLineOverride=YES/FromLineOverride=YES/g' '/etc/ssmtp/ssmtp.conf'
 
+COPY docker-entrypoint.sh /usr/local/bin/
+ENTRYPOINT ["docker-entrypoint.sh"]
+
 EXPOSE 9000
 
 CMD ["php-fpm7.3", "--nodaemonize"]

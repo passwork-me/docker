@@ -11,6 +11,12 @@ RUN rm /etc/nginx/nginx.conf \
     && touch /server/conf/nginx/prod.site \
     && ln -s /server/conf/nginx/nginx.conf /etc/nginx/nginx.conf
 
+COPY permissions /server/permissions
+COPY nginx-reload /server/nginx-reload
+
+COPY docker-entrypoint.sh /usr/local/bin/
+ENTRYPOINT ["docker-entrypoint.sh"]
+
 EXPOSE 80 443
 
 CMD ["nginx", "-g", "daemon off;"]

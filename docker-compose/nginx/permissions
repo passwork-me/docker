@@ -1,0 +1,5 @@
+#!/bin/bash
+
+chown -R www-data:www-data /server/sites/
+find /server/sites/ -type d -exec chmod 755 {} \;
+find /server/sites/ -type f -exec chmod 644 {} \;
