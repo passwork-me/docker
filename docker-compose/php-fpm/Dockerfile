@@ -28,6 +28,12 @@ RUN rm /etc/php/7.3/fpm/php.ini \
     && ln -s /server/conf/php/php-fpm.conf /etc/php/7.3/fpm/php-fpm.conf \
     && ln -s /server/conf/php/php.ini /etc/php/7.3/fpm/php.ini
 
+RUN apt-get install -y ssmtp \
+    && apt-get clean 
+
+RUN sed -i 's/mailhub=mail/mailhub=postfix/g' '/etc/ssmtp/ssmtp.conf' \
+    && sed -i 's/#FromLineOverride=YES/FromLineOverride=YES/g' '/etc/ssmtp/ssmtp.conf'
+
 EXPOSE 9000
 
 CMD ["php-fpm7.3", "--nodaemonize"]

@@ -13,6 +13,7 @@ RUN rm -rf /etc/postfix \
     && ln -s /server/log/syslog/mail.log /var/log/mail.log \
     && ln -s /server/log/syslog/syslog /var/log/syslog
 
+RUN cp /etc/resolv.conf /var/spool/postfix/etc/
 
 COPY docker-entrypoint.sh /usr/local/bin/
 ENTRYPOINT ["docker-entrypoint.sh"]
