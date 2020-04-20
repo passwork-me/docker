@@ -1,0 +1,63 @@
+version: '3.6'
+
+services:
+
+   nginx:
+     build: ./nginx
+     image: passwork/nginx
+     container_name: nginx
+     restart: unless-stopped
+     networks:
+       - passwork
+     volumes:
+       - /server/conf/nginx:/server/conf/nginx
+       - /server/conf/ssl:/server/conf/ssl
+       - /server/log/nginx:/server/log/nginx
+       - /server/sites/:/server/sites/
+     ports:
+       - 80:80
+       - 443:443
+     depends_on:
+            - "php"
+            - "db"
+
+   db:
+     build: ./mongo
+     image: passwork/mongodb
+     container_name: db
+     restart: unless-stopped
+     networks:
+       - passwork
+     volumes:
+       - /server/conf/mongo:/server/conf/
+       - /server/log/mongo:/server/log/
+       - /server/data/mongo/:/server/data
+
+   php:
+     build: ./php-fpm
+     image: passwork/php-fpm
+     container_name: php
+     restart: unless-stopped
+     networks:
+       - passwork
+     volumes:
+       - /server/conf/php/:/server/conf/php/
+       - /server/log/:/server/log/
+       - /server/sites/:/server/sites/
+
+   postfix:
+     build: ./postfix
+     image: passwork/postfix
+     container_name: postfix     
+     restart: unless-stopped
+     networks:
+       - passwork
+     volumes:
+       - /server/conf/postfix:/server/conf/postfix
+       - /server/log/syslog:/server/log/syslog
+     depends_on:
+            - "nginx"
+
+networks:
+  passwork:
+    driver: bridge
