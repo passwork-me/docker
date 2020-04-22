@@ -4,7 +4,7 @@ MAINTAINER fackyhigh@gmail.com
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
-    && apt-get install -y software-properties-common \
+    && apt-get install -y software-properties-common rsyslog \
     && add-apt-repository -y ppa:ondrej/php \
     && apt-get update \
     && apt-get -y install -y php7.3-cli php7.3-fpm php7.3-common php7.3-curl php7.3-opcache php7.3-readline php7.3-json php7.3-dev php7.3-ldap php7.3-xml php7.3-bcmath php7.3-mbstring \

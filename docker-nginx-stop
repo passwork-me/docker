@@ -1,3 +1,0 @@
-#!/bin/bash
-
-dexec $1 /server/nginx-stop
