@@ -3,7 +3,8 @@ MAINTAINER fackyhigh@gmail.com
 
 RUN apt-get update \
     && apt-get -y install nginx \
-    && apt-get clean
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN rm /etc/nginx/nginx.conf \
     && mkdir -p /server/conf/nginx/ \

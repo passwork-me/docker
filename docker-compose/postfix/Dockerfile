@@ -3,7 +3,8 @@ MAINTAINER fackyhigh@gmail.com
 
 RUN apt-get update \
     && apt-get install -y postfix rsyslog ca-certificates \
-    && apt-get clean
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN rm -rf /etc/postfix \
     && rm -f /var/log/mail.log \
