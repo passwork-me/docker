@@ -3,7 +3,7 @@ version: '3.6'
 services:
 
    nginx:
-     build: ./nginx
+#     build: ./nginx
      image: passwork/nginx
      container_name: nginx
      restart: unless-stopped
@@ -22,7 +22,7 @@ services:
             - "db"
 
    db:
-     build: ./mongo
+#     build: ./mongo
      image: passwork/mongodb
      container_name: db
      restart: unless-stopped
@@ -46,7 +46,7 @@ services:
        - /server/sites/:/server/sites/
 
    postfix:
-     build: ./postfix
+#     build: ./postfix
      image: passwork/postfix
      container_name: postfix     
      restart: unless-stopped
