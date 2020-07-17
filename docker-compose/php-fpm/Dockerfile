@@ -14,7 +14,7 @@ RUN apt-get update \
 RUN pecl install mongodb \
     && echo "extension=mongodb.so" | tee /etc/php/7.3/fpm/conf.d/20-mongodb.ini
 
-RUN git clone --branch 3.4.x  --depth=1 "git://github.com/phalcon/cphalcon.git" \
+RUN git clone --branch 3.4.x  --depth=1 "https://github.com/phalcon/cphalcon.git" \
     && cd cphalcon/build \
     && ./install \
     && echo "extension=phalcon.so" | tee /etc/php/7.3/fpm/conf.d/20-phalcon.ini
