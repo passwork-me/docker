@@ -1,5 +1,5 @@
 FROM ubuntu:18.04
-MAINTAINER fackyhigh@gmail.com
+MAINTAINER support@passwork.me
 
 ENV DEBIAN_FRONTEND=noninteractive
 
