@@ -1,5 +1,5 @@
 FROM ubuntu:18.04
-MAINTAINER fackyhigh@gmail.com
+MAINTAINER support@passwork.me
 
 RUN apt-get update \
     && apt-get install -y gnupg2 ca-certificates wget \
