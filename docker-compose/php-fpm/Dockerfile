@@ -11,7 +11,9 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pecl install mongodb \
+RUN pear config-set http_proxy "${http_proxy}" \
+    && pecl config-get http_proxy \
+    && pecl install mongodb \
     && echo "extension=mongodb.so" | tee /etc/php/7.3/fpm/conf.d/20-mongodb.ini
 
 RUN git clone --branch 3.4.x  --depth=1 "https://github.com/phalcon/cphalcon.git" \
