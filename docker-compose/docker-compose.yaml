@@ -34,7 +34,14 @@ services:
        - /server/data/mongo/:/server/data
 
    php:
-     build: ./php-fpm
+     build:
+       context: ./php-fpm
+       args:
+         HTTP_PROXY: ${http_proxy:-}
+         HTTPS_PROXY: ${http_proxy:-}
+         http_proxy: ${http_proxy:-}
+         https_proxy: ${http_proxy:-}
+         no_proxy: ${no_proxy:-}
      image: passwork/php-fpm
      container_name: php
      restart: unless-stopped
