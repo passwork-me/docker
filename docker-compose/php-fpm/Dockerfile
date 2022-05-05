@@ -14,12 +14,14 @@ RUN apt-get update \
 RUN pear config-set http_proxy "${http_proxy}" \
     && pecl config-get http_proxy \
     && pecl install mongodb \
-    && echo "extension=mongodb.so" | tee /etc/php/7.3/fpm/conf.d/20-mongodb.ini
+    && echo "extension=mongodb.so" | tee /etc/php/7.3/fpm/conf.d/20-mongodb.ini \
+    && echo "extension=mongodb.so" | tee /etc/php/7.3/cli/conf.d/20-mongodb.ini
 
 RUN git clone --branch 3.4.x  --depth=1 "https://github.com/phalcon/cphalcon.git" \
     && cd cphalcon/build \
     && ./install \
-    && echo "extension=phalcon.so" | tee /etc/php/7.3/fpm/conf.d/20-phalcon.ini
+    && echo "extension=phalcon.so" | tee /etc/php/7.3/fpm/conf.d/20-phalcon.ini \
+    && echo "extension=phalcon.so" | tee /etc/php/7.3/cli/conf.d/20-phalcon.ini
 
 RUN rm /etc/php/7.3/fpm/php.ini \
     && rm /etc/php/7.3/fpm/php-fpm.conf \

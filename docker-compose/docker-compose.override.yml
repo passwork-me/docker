@@ -1,0 +1,34 @@
+version: '3.6'
+
+services:
+
+   nginx:
+     restart: unless-stopped
+     volumes:
+       - /server/conf/nginx:/server/conf/nginx
+       - /server/conf/ssl:/server/conf/ssl
+       - /server/log/nginx:/server/log/nginx
+       - /server/sites/:/server/sites/
+     ports:
+       - 80:80
+       - 443:443
+
+   db:
+     restart: unless-stopped
+     volumes:
+       - /server/conf/mongo:/server/conf/
+       - /server/log/mongo:/server/log/
+       - /server/data/mongo/:/server/data
+
+   php:
+     restart: unless-stopped
+     volumes:
+       - /server/conf/php/:/server/conf/php/
+       - /server/log/:/server/log/
+       - /server/sites/:/server/sites/
+
+   postfix:
+     restart: unless-stopped
+     volumes:
+       - /server/conf/postfix:/server/conf/postfix
+       - /server/log/syslog:/server/log/syslog
