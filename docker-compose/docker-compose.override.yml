@@ -20,10 +20,17 @@ services:
        - /server/log/mongo:/server/log/
        - /server/data/mongo/:/server/data
 
-   php:
+#   php:
+#     restart: unless-stopped
+#     volumes:
+#       - /server/conf/php/:/server/conf/php/
+#       - /server/log/:/server/log/
+#       - /server/sites/:/server/sites/
+
+   php8:
      restart: unless-stopped
      volumes:
-       - /server/conf/php/:/server/conf/php/
+       - /server/conf/php8/:/server/conf/php8/
        - /server/log/:/server/log/
        - /server/sites/:/server/sites/
 

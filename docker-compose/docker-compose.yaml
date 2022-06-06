@@ -9,7 +9,7 @@ services:
      networks:
        - passwork
      depends_on:
-            - "php"
+            - "php8"
             - "db"
 
    db:
@@ -19,10 +19,17 @@ services:
      networks:
        - passwork
 
-   php:
-     build: ./php-fpm
-     image: passwork/php-fpm
-     container_name: php
+#   php:
+#     build: ./php-fpm
+#     image: passwork/php-fpm
+#     container_name: php
+#     networks:
+#       - passwork
+
+   php8:
+     build: ./php8-fpm
+     image: passwork/php8-fpm
+     container_name: php8
      networks:
        - passwork
 
