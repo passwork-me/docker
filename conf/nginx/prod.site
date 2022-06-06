@@ -1,6 +1,6 @@
 upstream balance {
     least_conn;
-    server php:9008;
+    server php8:9008;
 #   server unix:/var/run/php/php.sock;
 }
 
