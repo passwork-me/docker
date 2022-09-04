@@ -27,7 +27,7 @@ services:
 #       - passwork
 
    php8:
-     build: ./php8-fpm
+#     build: ./php8-fpm
      image: passwork/php8-fpm
      container_name: php8
      networks:
